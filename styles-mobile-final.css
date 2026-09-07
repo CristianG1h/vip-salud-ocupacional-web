@@ -1,0 +1,13 @@
+/* Ajustes de última prioridad para evitar saltos al cargar en móvil. */
+@media (max-width:760px){
+  body .site-header,body .site-header.is-scrolled{height:78px!important}
+  body .brand img{width:86px!important;height:54px!important}
+  body .whatsapp-float{right:14px!important;bottom:calc(70px + env(safe-area-inset-bottom))!important;width:60px!important;height:60px!important;min-height:60px!important;border-radius:18px!important}
+  body .whatsapp-float svg{width:31px!important;height:31px!important}
+  body .vip-wa-toast{right:83px!important;bottom:calc(78px + env(safe-area-inset-bottom))!important;width:min(230px,calc(100vw - 108px))!important;padding:11px 13px!important;border-radius:16px!important}
+  body .vip-wa-panel{right:12px!important;bottom:calc(140px + env(safe-area-inset-bottom))!important;width:calc(100vw - 24px)!important;max-height:min(520px,calc(100dvh - 170px))!important}
+}
+@media (max-width:390px){
+  body .brand img{width:78px!important;height:50px!important}
+  body .vip-wa-toast{right:78px!important;width:min(205px,calc(100vw - 98px))!important}
+}
