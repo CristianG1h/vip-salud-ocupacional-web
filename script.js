@@ -191,3 +191,136 @@
   if (year) year.textContent = String(new Date().getFullYear());
   updateScroll();
 })();
+
+/* ============================================================
+   VIP V10 · Mejora visual de imágenes (Netlify/GitHub)
+   - Conserva toda la lógica original.
+   - Corrige el logo del encabezado/portal/footer.
+   - Sustituye imágenes comprimidas por fotografías HD relacionadas.
+   - Añade una imagen a cada servicio sin cambiar el contenido.
+   ============================================================ */
+(() => {
+  const isPortal = /\/descargas-biofile\/?/i.test(window.location.pathname);
+  const logoPath = isPortal ? '../assets/logo-vip-nuevo.png' : 'assets/logo-vip-nuevo.png';
+
+  // Logo: usar el símbolo VIP limpio que ya está en el proyecto.
+  document.querySelectorAll('.brand img, .footer-brand img').forEach((img) => {
+    img.src = logoPath;
+    img.alt = 'VIP Salud Ocupacional';
+    img.style.objectFit = 'contain';
+    img.style.objectPosition = 'center';
+  });
+
+  // El portal no necesita el resto de mejoras de la página principal.
+  if (isPortal) return;
+
+  const style = document.createElement('style');
+  style.id = 'vip-visual-upgrades';
+  style.textContent = `
+    .brand img{width:76px!important;height:48px!important;object-fit:contain!important;object-position:center!important}
+    .footer-brand img{width:96px!important;height:58px!important;object-fit:contain!important;object-position:center!important;background:#fff!important}
+    .service-grid{gap:14px!important}
+    .service-card{min-height:310px!important;padding:0!important;overflow:hidden!important;border-radius:18px!important}
+    .service-card__media{position:relative;height:150px;overflow:hidden;background:#e4ebe6}
+    .service-card__media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(16,55,42,.18));pointer-events:none}
+    .service-card__media img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .65s var(--ease)}
+    .service-card:hover .service-card__media img{transform:scale(1.045)}
+    .service-card__media>span{position:absolute;left:14px;top:14px;z-index:2;display:grid;place-items:center;min-width:42px;height:38px;padding:0 10px;border-radius:11px;background:rgba(255,255,255,.95);color:var(--green-800);font-size:.67rem;font-weight:800;box-shadow:0 8px 22px rgba(20,60,45,.12)}
+    .service-card__body{padding:20px 22px 23px}
+    .service-card__body h3{font-size:1.04rem;margin:0 0 8px!important;letter-spacing:-.03em}
+    .service-card__body p{color:var(--muted);font-size:.82rem;line-height:1.58}
+    @media (max-width:760px){.service-card__media{height:185px}}
+  `;
+  document.head.appendChild(style);
+
+  const P = 'https://images.pexels.com/photos/';
+  const hd = (id, width = 1200) => `${P}${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${width}`;
+
+  const swapImage = (img, url, fallback) => {
+    if (!img || !url) return;
+    const original = fallback || img.getAttribute('src') || '';
+    img.decoding = 'async';
+    img.referrerPolicy = 'no-referrer';
+    img.src = url;
+    img.addEventListener('error', () => {
+      if (original && img.src !== original && !img.dataset.vipFallbackUsed) {
+        img.dataset.vipFallbackUsed = '1';
+        img.removeAttribute('referrerpolicy');
+        img.src = original;
+      }
+    }, { once: true });
+  };
+
+  // Portada: fotografía médica HD.
+  swapImage(
+    document.querySelector('.hero-photo > img'),
+    hd('39192389', 1400),
+    'assets/valoracion-medica-vip.jpg'
+  );
+
+  // Paquetes: cada uno con una imagen diferente y relacionada.
+  const packageImages = [
+    [hd('6749698'), 'assets/examen-visual-vip.jpg'],       // Administrativo / visual
+    [hd('14558560'), 'assets/valoracion-medica-vip.jpg'],// Operativo / valoración
+    [hd('12285817'), 'assets/laboratorio-clinico-vip.jpg'], // Alimentos / laboratorio
+    [hd('11843610'), 'assets/optometria-vip.jpg'],       // Alturas / seguridad
+    [hd('9518018'), 'assets/examen-visual-vip.jpg']       // Conductores
+  ];
+  document.querySelectorAll('.package-card .package-media img').forEach((img, i) => {
+    const data = packageImages[i];
+    if (data) swapImage(img, data[0], data[1]);
+  });
+
+  // Plataformas: telemedicina, CRC y CIA con visual propio.
+  const platformImages = [
+    [hd('7195091'), 'assets/optometria-vip.jpg'],
+    [hd('6749757'), 'assets/examen-visual-vip.jpg'],
+    [hd('36841495'), 'assets/valoracion-medica-vip.jpg']
+  ];
+  document.querySelectorAll('.platform-card .platform-image img').forEach((img, i) => {
+    const data = platformImages[i];
+    if (data) swapImage(img, data[0], data[1]);
+  });
+
+  // Portafolio: una foto específica por servicio.
+  const serviceImages = [
+    [hd('39192389', 1000), 'assets/valoracion-medica-vip.jpg'],  // Examen médico
+    [hd('12285817', 1000), 'assets/laboratorio-clinico-vip.jpg'], // Laboratorio
+    [hd('6749698', 1000), 'assets/optometria-vip.jpg'],          // Audiometría / optometría
+    [hd('39192389', 1000), 'assets/valoracion-medica-vip.jpg'],  // Cardio / pulmonar
+    [hd('6749757', 1000), 'assets/examen-visual-vip.jpg'],       // CRC
+    [hd('7195091', 1000), 'assets/valoracion-medica-vip.jpg'],   // Telemedicina
+    [hd('7176027', 1000), 'assets/valoracion-medica-vip.jpg'],   // Psicosocial
+    [hd('14558560', 1000), 'assets/valoracion-medica-vip.jpg'],  // Brigadas
+    [hd('19544217', 1000), 'assets/valoracion-medica-vip.jpg'],  // SST
+    [hd('20175025', 1000), 'assets/valoracion-medica-vip.jpg'],  // Vacunación
+    [hd('6129879', 1000), 'assets/laboratorio-clinico-vip.jpg'], // Manipulación de alimentos
+    [hd('5407235', 1000), 'assets/valoracion-medica-vip.jpg']    // Procesos digitales
+  ];
+
+  document.querySelectorAll('.service-card').forEach((card, i) => {
+    if (card.querySelector('.service-card__media')) return;
+
+    const badge = card.querySelector(':scope > span');
+    const heading = card.querySelector(':scope > h3');
+    const paragraph = card.querySelector(':scope > p');
+    const data = serviceImages[i] || serviceImages[0];
+
+    const media = document.createElement('div');
+    media.className = 'service-card__media';
+    const img = document.createElement('img');
+    img.alt = heading ? heading.textContent.trim() : 'Servicio de salud ocupacional';
+    img.loading = 'lazy';
+    media.appendChild(img);
+    if (badge) media.appendChild(badge);
+
+    const body = document.createElement('div');
+    body.className = 'service-card__body';
+    if (heading) body.appendChild(heading);
+    if (paragraph) body.appendChild(paragraph);
+
+    card.prepend(media);
+    card.appendChild(body);
+    swapImage(img, data[0], data[1]);
+  });
+})();
