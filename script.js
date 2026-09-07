@@ -1,326 +1,55 @@
 (() => {
   'use strict';
+  const d=document,w=window,root=d.documentElement,body=d.body;
+  const reduce=w.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const root = document.documentElement;
-  const body = document.body;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const toggle=d.querySelector('.menu-toggle'),nav=d.querySelector('.main-nav');
+  const setMenu=open=>{if(!toggle||!nav)return;nav.classList.toggle('is-open',open);toggle.classList.toggle('is-open',open);toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú');body.classList.toggle('menu-open',open)};
+  if(toggle&&nav){toggle.addEventListener('click',()=>setMenu(!nav.classList.contains('is-open')));nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));d.addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false)});d.addEventListener('click',e=>{if(nav.classList.contains('is-open')&&!nav.contains(e.target)&&!toggle.contains(e.target))setMenu(false)});w.addEventListener('resize',()=>{if(w.innerWidth>1020)setMenu(false)})}
 
-  /* Navegación móvil accesible */
-  const menuToggle = document.querySelector('.menu-toggle');
-  const mainNav = document.querySelector('.main-nav');
+  const progress=d.querySelector('.scroll-progress span'),header=d.querySelector('.site-header'),parallax=[...d.querySelectorAll('[data-parallax]')];let raf=0;
+  const update=()=>{const top=w.scrollY||root.scrollTop,max=Math.max(1,root.scrollHeight-w.innerHeight);if(progress)progress.style.width=`${Math.min(100,Math.max(0,top/max*100))}%`;if(header)header.classList.toggle('is-scrolled',top>20);if(!reduce&&w.innerWidth>900){parallax.forEach(el=>{const speed=Number(el.dataset.parallax||0),r=el.getBoundingClientRect(),delta=r.top+r.height/2-w.innerHeight/2;el.style.setProperty('--parallax-y',`${Math.max(-14,Math.min(14,-delta*speed))}px`)})}else parallax.forEach(el=>el.style.setProperty('--parallax-y','0px'));raf=0};
+  const request=()=>{if(!raf)raf=w.requestAnimationFrame(update)};w.addEventListener('scroll',request,{passive:true});w.addEventListener('resize',request,{passive:true});
 
-  const setMenu = (open) => {
-    if (!menuToggle || !mainNav) return;
-    mainNav.classList.toggle('is-open', open);
-    menuToggle.classList.toggle('is-open', open);
-    menuToggle.setAttribute('aria-expanded', String(open));
-    menuToggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
-    body.classList.toggle('menu-open', open);
-  };
+  d.querySelectorAll('[data-stagger]').forEach(g=>{g.classList.add('stagger-group');[...g.children].forEach((c,i)=>c.style.setProperty('--stagger-index',i))});
+  const reveals=[...d.querySelectorAll('[data-reveal]')];reveals.forEach(el=>el.style.setProperty('--reveal-delay',`${parseInt(el.dataset.delay||'0',10)||0}ms`));
+  if(reduce||!('IntersectionObserver'in w))reveals.forEach(el=>el.classList.add('is-visible'));else{root.classList.add('motion-ready');const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');io.unobserve(e.target)}}),{threshold:.01,rootMargin:'8% 0px 16% 0px'});reveals.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<w.innerHeight*1.08&&r.bottom>-80)el.classList.add('is-visible');else io.observe(el)})}
 
-  if (menuToggle && mainNav) {
-    menuToggle.addEventListener('click', () => setMenu(!mainNav.classList.contains('is-open')));
-    mainNav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setMenu(false)));
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') setMenu(false);
-    });
-    document.addEventListener('click', (event) => {
-      if (!mainNav.classList.contains('is-open')) return;
-      if (!mainNav.contains(event.target) && !menuToggle.contains(event.target)) setMenu(false);
-    });
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 1020) setMenu(false);
-    });
-  }
+  const links=[...d.querySelectorAll('.main-nav a[href^="#"]')],tracked=links.map(link=>({link,section:d.querySelector(link.getAttribute('href'))})).filter(x=>x.section);
+  if(tracked.length&&'IntersectionObserver'in w){const nio=new IntersectionObserver(es=>{const v=es.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(!v)return;links.forEach(a=>a.classList.remove('is-active'));const x=tracked.find(t=>t.section===v.target);if(x)x.link.classList.add('is-active')},{threshold:[.08,.2,.45],rootMargin:'-18% 0px -62% 0px'});tracked.forEach(x=>nio.observe(x.section))}
 
-  /* Progreso, cabecera y profundidad suave de la imagen principal */
-  const progress = document.querySelector('.scroll-progress span');
-  const header = document.querySelector('.site-header');
-  const parallaxItems = [...document.querySelectorAll('[data-parallax]')];
-  let scrollFrame = 0;
+  const faqs=[...d.querySelectorAll('.accordion details')];faqs.forEach(x=>x.addEventListener('toggle',()=>{if(x.open)faqs.forEach(y=>{if(y!==x)y.open=false})}));
+  const services=d.querySelector('.services'),serviceToggle=d.querySelector('[data-services-toggle]');if(services&&serviceToggle)serviceToggle.addEventListener('click',()=>{const open=services.classList.toggle('is-expanded');serviceToggle.setAttribute('aria-expanded',String(open));serviceToggle.innerHTML=open?'Mostrar menos <span aria-hidden="true">↑</span>':'Ver todos los servicios <span aria-hidden="true">↓</span>';if(open)services.querySelectorAll('.service-card.is-extra').forEach(c=>c.classList.add('is-visible'))});
 
-  const updateScroll = () => {
-    const top = window.scrollY || document.documentElement.scrollTop;
-    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    if (progress) progress.style.width = `${Math.min(100, Math.max(0, (top / max) * 100))}%`;
-    if (header) header.classList.toggle('is-scrolled', top > 20);
+  const form=d.getElementById('form-cotizacion'),status=d.getElementById('form-status');if(form)form.addEventListener('submit',e=>{e.preventDefault();if(!form.reportValidity())return;const v=Object.fromEntries(new FormData(form).entries()),lines=['Hola, quiero solicitar una cotización con VIP Salud Ocupacional.','',`Nombre: ${v.nombre||''}`,v.empresa?`Empresa: ${v.empresa}`:'',`Teléfono: ${v.telefono||''}`,v.correo?`Correo: ${v.correo}`:'',`Servicio: ${v.servicio||'No especificado'}`,v.mensaje?`Mensaje: ${v.mensaje}`:''].filter(Boolean),url=`https://api.whatsapp.com/send/?phone=%2B573134010901&text=${encodeURIComponent(lines.join('\n'))}&type=phone_number&app_absent=0`;w.open(url,'_blank','noopener,noreferrer');if(status)status.textContent='Se abrió WhatsApp con su solicitud lista para enviar.'});
 
-    if (!reducedMotion && window.innerWidth > 900) {
-      parallaxItems.forEach((item) => {
-        const speed = Number(item.dataset.parallax || 0);
-        const rect = item.getBoundingClientRect();
-        const delta = rect.top + rect.height / 2 - window.innerHeight / 2;
-        const shift = Math.max(-14, Math.min(14, -delta * speed));
-        item.style.setProperty('--parallax-y', `${shift}px`);
-      });
-    } else {
-      parallaxItems.forEach((item) => item.style.setProperty('--parallax-y', '0px'));
-    }
-    scrollFrame = 0;
-  };
+  const policy=d.querySelector('.policy-disclosure'),openPolicy=()=>{if(w.location.hash==='#privacidad'&&policy)policy.open=true};d.querySelectorAll('a[href="#privacidad"]').forEach(a=>a.addEventListener('click',()=>{if(policy)policy.open=true}));w.addEventListener('hashchange',openPolicy);openPolicy();
 
-  const requestScrollUpdate = () => {
-    if (scrollFrame) return;
-    scrollFrame = window.requestAnimationFrame(updateScroll);
-  };
+  const isPortal=/\/descargas-biofile\/?/i.test(w.location.pathname),logo=isPortal?'../assets/logo-vip-marca.png':'assets/logo-vip-marca.png';
+  d.querySelectorAll('.brand img,.footer-brand img').forEach(img=>{img.src=logo;img.alt='VIP Salud Ocupacional';img.style.objectFit='contain';img.style.objectPosition='center'});
 
-  window.addEventListener('scroll', requestScrollUpdate, { passive: true });
-  window.addEventListener('resize', requestScrollUpdate, { passive: true });
+  const style=d.createElement('style');style.id='vip-brand-theme';style.textContent=`
+  :root{--vip-blue:#2f4a9e;--vip-cyan:#2d8fc5;--vip-purple:#702b8f;--vip-orange:#ff8a1f;--vip-green:#4ea835;--vip-teal:#087c69}
+  html{scroll-padding-top:124px}section[id],.contact[id],.privacy[id]{scroll-margin-top:124px}
+  .scroll-progress span{background:linear-gradient(90deg,var(--vip-blue),var(--vip-purple),var(--vip-orange),var(--vip-green),var(--vip-teal))!important}
+  .utility-bar{background:linear-gradient(90deg,#183d7d 0%,#4d2a79 38%,#0b5f50 100%)!important;color:#edf4f2!important}
+  .site-header{height:96px!important;background:rgba(255,255,255,.96)!important}.site-header.is-scrolled{height:84px!important;background:rgba(255,255,255,.98)!important;box-shadow:0 14px 36px rgba(47,74,158,.1)!important}.site-header::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--vip-blue),var(--vip-purple),var(--vip-orange),var(--vip-green),var(--vip-teal));pointer-events:none}
+  .brand{gap:15px!important}.brand img{width:104px!important;height:66px!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 6px 14px rgba(47,74,158,.12))!important}.brand strong{color:var(--vip-blue)!important}.brand small{color:#68747c!important}
+  h1 span,h2 span{background:linear-gradient(90deg,var(--vip-blue),var(--vip-purple) 36%,var(--vip-orange) 68%,var(--vip-green));-webkit-background-clip:text;background-clip:text;color:transparent!important}
+  .eyebrow{color:var(--vip-blue)!important}.main-nav>a:not(.btn)::after{background:linear-gradient(90deg,var(--vip-blue),var(--vip-purple),var(--vip-orange),var(--vip-green))!important}.main-nav>a:not(.btn):hover,.main-nav>a:not(.btn):focus-visible,.main-nav>a:not(.btn).is-active{color:var(--vip-blue)!important;background:linear-gradient(90deg,rgba(47,74,158,.08),rgba(112,43,143,.06),rgba(78,168,53,.08))!important;border-color:#d7dff0!important}
+  .btn{background:linear-gradient(135deg,var(--vip-teal),#0b6558)!important;border-color:var(--vip-teal)!important}.btn:hover{background:linear-gradient(135deg,#0a6f60,#0b4d42)!important}.btn--accent{background:linear-gradient(135deg,var(--vip-orange),#f06b17)!important;border-color:var(--vip-orange)!important}.btn--ghost{background:#fff!important;color:var(--vip-blue)!important;border-color:#d7dff0!important}.btn--ghost:hover{background:linear-gradient(90deg,#f2f5ff,#f7f1fb,#f1faf3)!important}
+  .hero{background:radial-gradient(circle at 84% 12%,rgba(78,168,53,.13),transparent 28%),radial-gradient(circle at 18% 0%,rgba(47,74,158,.08),transparent 30%),radial-gradient(circle at 62% 14%,rgba(112,43,143,.05),transparent 24%),#fbfaf7!important}
+  .quick-card--featured{background:linear-gradient(135deg,#eef3ff 0%,#f8f1fb 34%,#fff4ea 66%,#eef8f1 100%)!important;border-color:#d5dbea!important}.quick-card>span{background:#eef2ff!important;color:var(--vip-purple)!important}.quick-card:nth-child(2)>span{background:#fff3e9!important;color:var(--vip-orange)!important}.quick-card:nth-child(3)>span{background:#eef8f1!important;color:var(--vip-green)!important}.quick-card:nth-child(4)>span{background:#edf7f4!important;color:var(--vip-teal)!important}
+  .certificate,.portal-hero{background:linear-gradient(125deg,#203f86 0%,#5a2c7f 42%,#0a6c5c 100%)!important}.certificate h2 span,.portal-hero h1 span{background:linear-gradient(90deg,#9cc3ff,#d5a9ee,#ffc082,#9ddb93);-webkit-background-clip:text;background-clip:text;color:transparent!important}
+  .package-card,.platform-card,.service-card{position:relative}.package-card::before,.platform-card::before,.service-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--vip-blue),var(--vip-purple),var(--vip-orange),var(--vip-green));opacity:.76;z-index:4}.package-card:hover,.platform-card:hover,.service-card:hover{border-color:#cfd7e8!important;box-shadow:0 18px 44px rgba(47,74,158,.1)!important}.package-body>small,.platform-body>small{color:var(--vip-purple)!important}.service-card__media>span{color:var(--vip-blue)!important}.text-link{color:var(--vip-teal)!important}
+  .footer{background:linear-gradient(120deg,#173d7b 0%,#44276d 32%,#0c4e44 72%,#0b3d34 100%)!important;color:#d1dfdb!important}.footer-brand img{width:134px!important;height:84px!important;object-fit:contain!important;background:#fff!important;border-radius:16px!important;padding:8px 10px!important;box-shadow:0 12px 28px rgba(14,50,38,.16)!important}.footer-bottom{border-top-color:rgba(255,255,255,.18)!important}
+  .portal-support-link{background:linear-gradient(90deg,rgba(47,74,158,.08),rgba(112,43,143,.06),rgba(78,168,53,.08))!important;border-color:#d8dfeb!important;color:var(--vip-blue)!important}.portal-support-link span{color:var(--vip-teal)!important}
+  .whatsapp-float{position:fixed!important;right:24px!important;bottom:24px!important;z-index:90!important;display:flex!important;align-items:center!important;gap:12px!important;min-height:78px!important;padding:10px 16px 10px 10px!important;border-radius:999px!important;background:rgba(255,255,255,.97)!important;border:1px solid #d9dff0!important;box-shadow:0 20px 44px rgba(47,74,158,.17)!important;max-width:min(92vw,370px)!important;transition:transform .3s ease,box-shadow .3s ease!important}.whatsapp-float::before{content:"";position:absolute;left:20px;right:20px;top:0;height:3px;border-radius:999px;background:linear-gradient(90deg,var(--vip-blue),var(--vip-purple),var(--vip-orange),var(--vip-green))}.whatsapp-float:hover{transform:translateY(-4px) scale(1.01)!important;box-shadow:0 24px 48px rgba(47,74,158,.22)!important}.whatsapp-float__icon{position:relative;display:grid;place-items:center;flex:0 0 58px;width:58px;height:58px;border-radius:50%;background:#25D366;box-shadow:0 12px 24px rgba(37,211,102,.28)}.whatsapp-float__icon::after{content:"";position:absolute;inset:4px;border-radius:50%;background:linear-gradient(135deg,#38df77,#20bd5a)}.whatsapp-float__icon svg{position:relative;z-index:1;width:29px;height:29px;fill:#fff}.whatsapp-float__content{display:flex;flex-direction:column;gap:2px;min-width:0}.whatsapp-float__eyebrow{font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--vip-purple)}.whatsapp-float__message{font-size:.9rem;font-weight:800;line-height:1.22;color:var(--vip-blue);transition:opacity .28s ease,transform .28s ease}.whatsapp-float__hint{font-size:.74rem;line-height:1.3;color:#64717c;transition:opacity .28s ease,transform .28s ease}.whatsapp-float.is-changing .whatsapp-float__message,.whatsapp-float.is-changing .whatsapp-float__hint{opacity:.2;transform:translateY(6px)}
+  @media(max-width:1020px){.site-header,.site-header.is-scrolled{height:84px!important}}
+  @media(max-width:760px){.brand img{width:82px!important;height:52px!important}.whatsapp-float{right:14px!important;bottom:74px!important;min-height:68px!important;max-width:calc(100vw - 28px)!important;padding:8px 12px 8px 8px!important}.whatsapp-float__icon{flex-basis:50px;width:50px;height:50px}.whatsapp-float__icon svg{width:25px;height:25px}.whatsapp-float__message{font-size:.8rem}.whatsapp-float__hint{display:none}}
+  `;d.head.appendChild(style);
 
-  /* Aparición progresiva y cascadas, con contenido visible si el navegador no lo soporta */
-  const staggerGroups = [...document.querySelectorAll('[data-stagger]')];
-  staggerGroups.forEach((group) => {
-    group.classList.add('stagger-group');
-    [...group.children].forEach((child, index) => child.style.setProperty('--stagger-index', String(index)));
-  });
+  const wa=d.querySelector('.whatsapp-float');if(wa){const messages=[['¿Necesita información?','Asesoría comercial y soporte inmediato.'],['¿Quiere cotizar para su empresa?','Le ayudamos con paquetes y cobertura.'],['¿Desea agendar un examen?','Atención presencial y virtual disponible.'],['¿Busca descargar certificados?','Le guiamos paso a paso por WhatsApp.'],['¿Tiene dudas de nuestros servicios?','Escríbanos y reciba orientación rápida.']];wa.setAttribute('aria-label','Contactar a VIP Salud Ocupacional por WhatsApp');wa.innerHTML=`<span class="whatsapp-float__icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M27.1 4.8A15.34 15.34 0 0 0 16.2.5C7.8.5 1 7.2 1 15.6c0 2.7.7 5.3 2.1 7.6L.5 31.5l8.5-2.2a15.1 15.1 0 0 0 7.2 1.8h.1c8.4 0 15.2-6.8 15.2-15.2 0-4.1-1.6-8-4.4-11.1Zm-10.9 23.7h-.1a12.5 12.5 0 0 1-6.4-1.8l-.5-.3-5 1.3 1.3-4.9-.3-.5a12.6 12.6 0 0 1 10.9-19.1c7 0 12.7 5.7 12.7 12.7 0 7-5.7 12.6-12.6 12.6Zm6.9-9.5c-.4-.2-2.3-1.1-2.6-1.3-.4-.1-.6-.2-.9.2-.3.4-1 1.3-1.2 1.5-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3.1-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.6.2-.2.3-.4.4-.7.1-.2 0-.5-.1-.7-.1-.2-.9-2.1-1.2-2.8-.3-.8-.6-.6-.9-.6h-.7c-.3 0-.7.1-1 .5-.4.4-1.4 1.4-1.4 3.3s1.4 3.8 1.6 4 .4.6 3.1 2.4c2.7 1.8 4.7 2.4 5.7 2.6 1 .2 1.9.2 2.6.1.8-.1 2.3-.9 2.6-1.8.3-.9.3-1.7.2-1.8-.1-.2-.4-.3-.8-.5Z"/></svg></span><span class="whatsapp-float__content"><small class="whatsapp-float__eyebrow">WhatsApp VIP</small><strong class="whatsapp-float__message"></strong><small class="whatsapp-float__hint"></small></span>`;const title=wa.querySelector('.whatsapp-float__message'),hint=wa.querySelector('.whatsapp-float__hint');let i=0;const show=anim=>{if(anim)wa.classList.add('is-changing');setTimeout(()=>{title.textContent=messages[i][0];hint.textContent=messages[i][1];wa.classList.remove('is-changing')},anim?180:0)};show(false);setInterval(()=>{i=(i+1)%messages.length;show(true)},30000)}
 
-  const revealItems = [...document.querySelectorAll('[data-reveal]')];
-  revealItems.forEach((item) => {
-    const delay = Number.parseInt(item.dataset.delay || '0', 10);
-    item.style.setProperty('--reveal-delay', `${Number.isFinite(delay) ? delay : 0}ms`);
-  });
-
-  const nearViewport = (element) => {
-    const rect = element.getBoundingClientRect();
-    return rect.top < window.innerHeight * 1.08 && rect.bottom > -80;
-  };
-
-  revealItems.forEach((item) => {
-    if (nearViewport(item)) item.classList.add('is-visible');
-  });
-
-  if (reducedMotion || !('IntersectionObserver' in window)) {
-    revealItems.forEach((item) => item.classList.add('is-visible'));
-  } else {
-    root.classList.add('motion-ready');
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        revealObserver.unobserve(entry.target);
-      });
-    }, { threshold: 0.01, rootMargin: '8% 0px 16% 0px' });
-
-    revealItems.filter((item) => !item.classList.contains('is-visible')).forEach((item) => revealObserver.observe(item));
-  }
-
-  /* Resalta la sección visible en el menú */
-  const sectionLinks = [...document.querySelectorAll('.main-nav a[href^="#"]')];
-  const tracked = sectionLinks
-    .map((link) => ({ link, section: document.querySelector(link.getAttribute('href')) }))
-    .filter((item) => item.section);
-
-  if (tracked.length && 'IntersectionObserver' in window) {
-    const navObserver = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (!visible) return;
-      sectionLinks.forEach((link) => link.classList.remove('is-active'));
-      const current = tracked.find((item) => item.section === visible.target);
-      if (current) current.link.classList.add('is-active');
-    }, { threshold: [0.08, 0.2, 0.45], rootMargin: '-18% 0px -62% 0px' });
-    tracked.forEach((item) => navObserver.observe(item.section));
-  }
-
-  /* FAQ: una sola respuesta abierta a la vez */
-  const faqDetails = [...document.querySelectorAll('.accordion details')];
-  faqDetails.forEach((detail) => {
-    detail.addEventListener('toggle', () => {
-      if (!detail.open) return;
-      faqDetails.forEach((other) => {
-        if (other !== detail) other.open = false;
-      });
-    });
-  });
-
-  /* Portafolio: seis servicios principales y expansión opcional */
-  const services = document.querySelector('.services');
-  const servicesToggle = document.querySelector('[data-services-toggle]');
-  if (services && servicesToggle) {
-    servicesToggle.addEventListener('click', () => {
-      const expanded = services.classList.toggle('is-expanded');
-      servicesToggle.setAttribute('aria-expanded', String(expanded));
-      servicesToggle.innerHTML = expanded
-        ? 'Mostrar menos <span aria-hidden="true">↑</span>'
-        : 'Ver todos los servicios <span aria-hidden="true">↓</span>';
-      if (expanded) {
-        services.querySelectorAll('.service-card.is-extra').forEach((card) => card.classList.add('is-visible'));
-      }
-    });
-  }
-
-  /* El formulario organiza la información y abre la línea comercial en WhatsApp */
-  const quoteForm = document.getElementById('form-cotizacion');
-  const formStatus = document.getElementById('form-status');
-  if (quoteForm) {
-    quoteForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-      if (!quoteForm.reportValidity()) return;
-
-      const values = Object.fromEntries(new FormData(quoteForm).entries());
-      const lines = [
-        'Hola, quiero solicitar una cotización con VIP Salud Ocupacional.',
-        '',
-        `Nombre: ${values.nombre || ''}`,
-        values.empresa ? `Empresa: ${values.empresa}` : '',
-        `Teléfono: ${values.telefono || ''}`,
-        values.correo ? `Correo: ${values.correo}` : '',
-        `Servicio: ${values.servicio || 'No especificado'}`,
-        values.mensaje ? `Mensaje: ${values.mensaje}` : ''
-      ].filter(Boolean);
-
-      const url = `https://api.whatsapp.com/send/?phone=%2B573134010901&text=${encodeURIComponent(lines.join('\n'))}&type=phone_number&app_absent=0`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-      if (formStatus) formStatus.textContent = 'Se abrió WhatsApp con su solicitud lista para enviar.';
-    });
-  }
-
-  /* Al llegar por enlace directo, abre la política completa */
-  const policy = document.querySelector('.policy-disclosure');
-  const openPolicyFromHash = () => {
-    if (window.location.hash === '#privacidad' && policy) policy.open = true;
-  };
-  document.querySelectorAll('a[href="#privacidad"]').forEach((link) => {
-    link.addEventListener('click', () => {
-      if (policy) policy.open = true;
-    });
-  });
-  window.addEventListener('hashchange', openPolicyFromHash);
-  openPolicyFromHash();
-
-  const year = document.getElementById('year');
-  if (year) year.textContent = String(new Date().getFullYear());
-  updateScroll();
-})();
-
-/* ============================================================
-   VIP V10 · Mejora visual de imágenes (Netlify/GitHub)
-   - Conserva toda la lógica original.
-   - Corrige el logo del encabezado/portal/footer.
-   - Sustituye imágenes comprimidas por fotografías HD relacionadas.
-   - Añade una imagen a cada servicio sin cambiar el contenido.
-   ============================================================ */
-(() => {
-  const isPortal = /\/descargas-biofile\/?/i.test(window.location.pathname);
-  const logoPath = isPortal ? '../assets/logo-vip-nuevo.png' : 'assets/logo-vip-nuevo.png';
-
-  // Logo: usar el símbolo VIP limpio que ya está en el proyecto.
-  document.querySelectorAll('.brand img, .footer-brand img').forEach((img) => {
-    img.src = logoPath;
-    img.alt = 'VIP Salud Ocupacional';
-    img.style.objectFit = 'contain';
-    img.style.objectPosition = 'center';
-  });
-
-  // El portal no necesita el resto de mejoras de la página principal.
-  if (isPortal) return;
-
-  const style = document.createElement('style');
-  style.id = 'vip-visual-upgrades';
-  style.textContent = `
-    .brand img{width:76px!important;height:48px!important;object-fit:contain!important;object-position:center!important}
-    .footer-brand img{width:96px!important;height:58px!important;object-fit:contain!important;object-position:center!important;background:#fff!important}
-    .service-grid{gap:14px!important}
-    .service-card{min-height:310px!important;padding:0!important;overflow:hidden!important;border-radius:18px!important}
-    .service-card__media{position:relative;height:150px;overflow:hidden;background:#e4ebe6}
-    .service-card__media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(16,55,42,.18));pointer-events:none}
-    .service-card__media img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .65s var(--ease)}
-    .service-card:hover .service-card__media img{transform:scale(1.045)}
-    .service-card__media>span{position:absolute;left:14px;top:14px;z-index:2;display:grid;place-items:center;min-width:42px;height:38px;padding:0 10px;border-radius:11px;background:rgba(255,255,255,.95);color:var(--green-800);font-size:.67rem;font-weight:800;box-shadow:0 8px 22px rgba(20,60,45,.12)}
-    .service-card__body{padding:20px 22px 23px}
-    .service-card__body h3{font-size:1.04rem;margin:0 0 8px!important;letter-spacing:-.03em}
-    .service-card__body p{color:var(--muted);font-size:.82rem;line-height:1.58}
-    @media (max-width:760px){.service-card__media{height:185px}}
-  `;
-  document.head.appendChild(style);
-
-  const P = 'https://images.pexels.com/photos/';
-  const hd = (id, width = 1200) => `${P}${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${width}`;
-
-  const swapImage = (img, url, fallback) => {
-    if (!img || !url) return;
-    const original = fallback || img.getAttribute('src') || '';
-    img.decoding = 'async';
-    img.referrerPolicy = 'no-referrer';
-    img.src = url;
-    img.addEventListener('error', () => {
-      if (original && img.src !== original && !img.dataset.vipFallbackUsed) {
-        img.dataset.vipFallbackUsed = '1';
-        img.removeAttribute('referrerpolicy');
-        img.src = original;
-      }
-    }, { once: true });
-  };
-
-  // Portada: fotografía médica HD.
-  swapImage(
-    document.querySelector('.hero-photo > img'),
-    hd('39192389', 1400),
-    'assets/valoracion-medica-vip.jpg'
-  );
-
-  // Paquetes: cada uno con una imagen diferente y relacionada.
-  const packageImages = [
-    [hd('6749698'), 'assets/examen-visual-vip.jpg'],       // Administrativo / visual
-    [hd('14558560'), 'assets/valoracion-medica-vip.jpg'],// Operativo / valoración
-    [hd('12285817'), 'assets/laboratorio-clinico-vip.jpg'], // Alimentos / laboratorio
-    [hd('11843610'), 'assets/optometria-vip.jpg'],       // Alturas / seguridad
-    [hd('9518018'), 'assets/examen-visual-vip.jpg']       // Conductores
-  ];
-  document.querySelectorAll('.package-card .package-media img').forEach((img, i) => {
-    const data = packageImages[i];
-    if (data) swapImage(img, data[0], data[1]);
-  });
-
-  // Plataformas: telemedicina, CRC y CIA con visual propio.
-  const platformImages = [
-    [hd('7195091'), 'assets/optometria-vip.jpg'],
-    [hd('6749757'), 'assets/examen-visual-vip.jpg'],
-    [hd('36841495'), 'assets/valoracion-medica-vip.jpg']
-  ];
-  document.querySelectorAll('.platform-card .platform-image img').forEach((img, i) => {
-    const data = platformImages[i];
-    if (data) swapImage(img, data[0], data[1]);
-  });
-
-  // Portafolio: una foto específica por servicio.
-  const serviceImages = [
-    [hd('39192389', 1000), 'assets/valoracion-medica-vip.jpg'],  // Examen médico
-    [hd('12285817', 1000), 'assets/laboratorio-clinico-vip.jpg'], // Laboratorio
-    [hd('6749698', 1000), 'assets/optometria-vip.jpg'],          // Audiometría / optometría
-    [hd('39192389', 1000), 'assets/valoracion-medica-vip.jpg'],  // Cardio / pulmonar
-    [hd('6749757', 1000), 'assets/examen-visual-vip.jpg'],       // CRC
-    [hd('7195091', 1000), 'assets/valoracion-medica-vip.jpg'],   // Telemedicina
-    [hd('7176027', 1000), 'assets/valoracion-medica-vip.jpg'],   // Psicosocial
-    [hd('14558560', 1000), 'assets/valoracion-medica-vip.jpg'],  // Brigadas
-    [hd('19544217', 1000), 'assets/valoracion-medica-vip.jpg'],  // SST
-    [hd('20175025', 1000), 'assets/valoracion-medica-vip.jpg'],  // Vacunación
-    [hd('6129879', 1000), 'assets/laboratorio-clinico-vip.jpg'], // Manipulación de alimentos
-    [hd('5407235', 1000), 'assets/valoracion-medica-vip.jpg']    // Procesos digitales
-  ];
-
-  document.querySelectorAll('.service-card').forEach((card, i) => {
-    if (card.querySelector('.service-card__media')) return;
-
-    const badge = card.querySelector(':scope > span');
-    const heading = card.querySelector(':scope > h3');
-    const paragraph = card.querySelector(':scope > p');
-    const data = serviceImages[i] || serviceImages[0];
-
-    const media = document.createElement('div');
-    media.className = 'service-card__media';
-    const img = document.createElement('img');
-    img.alt = heading ? heading.textContent.trim() : 'Servicio de salud ocupacional';
-    img.loading = 'lazy';
-    media.appendChild(img);
-    if (badge) media.appendChild(badge);
-
-    const body = document.createElement('div');
-    body.className = 'service-card__body';
-    if (heading) body.appendChild(heading);
-    if (paragraph) body.appendChild(paragraph);
-
-    card.prepend(media);
-    card.appendChild(body);
-    swapImage(img, data[0], data[1]);
-  });
+  const year=d.getElementById('year');if(year)year.textContent=String(new Date().getFullYear());update();
 })();
