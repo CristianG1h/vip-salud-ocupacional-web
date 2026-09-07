@@ -1,0 +1,46 @@
+/* Ajuste específico del iframe de Biofile.
+   Biofile entrega un iframe con altura fija de 1200 px, pero sus pantallas
+   (login/dashboard) suelen ser mucho más cortas. Este archivo evita el gran
+   bloque vacío y mantiene scroll interno cuando Biofile necesita más espacio. */
+
+.portal-page .biofile-frame{
+  display:block;
+  width:100%!important;
+  height:clamp(620px,76vh,820px)!important;
+  min-height:0!important;
+  max-height:820px!important;
+  border:0!important;
+  background:#f7f8fa!important;
+}
+
+.portal-page .portal-shell{
+  background:#f7f8fa!important;
+}
+
+@media (max-width:1020px){
+  .portal-page .biofile-frame{
+    height:clamp(620px,74dvh,760px)!important;
+    max-height:760px!important;
+  }
+}
+
+@media (max-width:760px){
+  .portal-page .biofile-frame{
+    height:clamp(600px,72dvh,720px)!important;
+    max-height:720px!important;
+  }
+}
+
+@media (max-width:420px){
+  .portal-page .biofile-frame{
+    height:640px!important;
+    max-height:640px!important;
+  }
+}
+
+@media (max-height:700px) and (min-width:761px){
+  .portal-page .biofile-frame{
+    height:610px!important;
+    max-height:610px!important;
+  }
+}
