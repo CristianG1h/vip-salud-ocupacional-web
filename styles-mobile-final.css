@@ -1,13 +1,208 @@
-/* Ajustes de última prioridad para evitar saltos al cargar en móvil. */
+/* =========================================================
+   Ajustes finales de responsive y composición visual.
+   Mantiene los elementos del hero dentro de la fotografía y
+   evita cortes/overflow en móvil, tablet y ventanas angostas.
+========================================================= */
+
+html,body{max-width:100%;overflow-x:hidden}
+img,iframe,video{max-width:100%}
+.hero-media,.hero-photo,.portal-shell,.biofile-frame{min-width:0}
+
+/* El badge 24/7 y el badge inferior deben permanecer dentro de la foto. */
+@media (max-width:1200px){
+  .hero-photo{width:min(100%,520px)!important;margin-inline:auto!important}
+  .hero-badge--side{
+    right:16px!important;
+    top:108px!important;
+    min-width:142px!important;
+    max-width:160px!important;
+    padding:15px 17px!important;
+  }
+  .hero-badge--side small{white-space:normal!important;line-height:1.3!important}
+  .hero-badge--bottom{
+    left:16px!important;
+    bottom:20px!important;
+    max-width:280px!important;
+  }
+}
+
+@media (max-width:1020px){
+  .hero-grid{grid-template-columns:1fr!important}
+  .hero-copy{max-width:760px!important}
+  .hero-media{width:100%!important}
+  .hero-photo{width:min(100%,560px)!important;margin-inline:auto!important}
+  .hero-photo>img{height:500px!important;object-position:34% center!important}
+
+  .portal-shell__head{gap:16px!important;flex-wrap:wrap!important}
+  .portal-support-link{max-width:100%!important}
+}
+
 @media (max-width:760px){
+  body{font-size:15px;padding-bottom:env(safe-area-inset-bottom)}
+  .container{width:calc(100% - 28px)!important}
+
   body .site-header,body .site-header.is-scrolled{height:78px!important}
   body .brand img{width:86px!important;height:54px!important}
-  body .whatsapp-float{right:14px!important;bottom:calc(70px + env(safe-area-inset-bottom))!important;width:60px!important;height:60px!important;min-height:60px!important;border-radius:18px!important}
+  .header-inner{gap:10px!important}
+
+  .hero{padding:42px 0 46px!important}
+  .hero-grid{gap:30px!important}
+  .hero-copy{max-width:none!important}
+  .hero .eyebrow{font-size:.67rem!important;letter-spacing:.14em!important;line-height:1.45!important}
+  .hero h1{
+    font-size:clamp(2.35rem,10.9vw,3.35rem)!important;
+    line-height:1.01!important;
+    margin:17px 0 19px!important;
+    letter-spacing:-.052em!important;
+  }
+  .hero-lead{font-size:.94rem!important;line-height:1.62!important}
+  .hero-actions{gap:10px!important;margin-top:24px!important}
+  .hero-actions .btn{min-height:51px!important;padding-inline:16px!important}
+
+  .hero-proof{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    margin-top:28px!important;
+    padding-top:17px!important;
+    gap:0!important;
+  }
+  .hero-proof>div{
+    min-width:0!important;
+    padding:0 9px!important;
+    margin:0!important;
+    border-right:1px solid var(--line)!important;
+    border-bottom:0!important;
+  }
+  .hero-proof>div:first-child{padding-left:0!important}
+  .hero-proof>div:last-child{padding-right:0!important;border-right:0!important}
+  .hero-proof strong{font-size:.74rem!important;line-height:1.25!important}
+  .hero-proof small{font-size:.58rem!important;line-height:1.35!important;overflow-wrap:anywhere}
+
+  .hero-media{overflow:visible!important}
+  .hero-photo{
+    width:100%!important;
+    max-width:560px!important;
+    margin-inline:auto!important;
+  }
+  .hero-photo::before{inset:-7px!important;border-radius:27px!important}
+  .hero-photo>img{
+    height:390px!important;
+    border-radius:22px!important;
+    object-position:32% center!important;
+    transform:none!important;
+  }
+  .hero-photo__veil{border-radius:22px!important}
+
+  .hero-badge--top{
+    left:12px!important;
+    right:12px!important;
+    top:12px!important;
+    padding:11px 13px!important;
+    border-radius:14px!important;
+  }
+  .hero-badge--top strong{font-size:.74rem!important}
+  .hero-badge--top small{font-size:.62rem!important}
+
+  .hero-badge--side{
+    right:12px!important;
+    top:auto!important;
+    bottom:82px!important;
+    min-width:132px!important;
+    max-width:145px!important;
+    padding:13px 15px!important;
+    border-radius:14px!important;
+  }
+  .hero-badge--side strong{font-size:1.05rem!important}
+  .hero-badge--side small{font-size:.59rem!important;line-height:1.3!important;white-space:normal!important}
+
+  .hero-badge--bottom{
+    left:12px!important;
+    right:auto!important;
+    bottom:12px!important;
+    max-width:calc(100% - 24px)!important;
+    padding:11px 13px!important;
+    border-radius:14px!important;
+  }
+  .hero-badge--bottom>span{width:28px!important;height:28px!important}
+  .hero-badge--bottom strong{font-size:.72rem!important}
+  .hero-badge--bottom small{font-size:.58rem!important;white-space:normal!important}
+
+  /* Evitar tarjetas demasiado anchas o textos cortados. */
+  .quick-card,.package-card,.platform-card,.service-card,.contact-options>a,.policy-disclosure,.portal-shell,.portal-support{max-width:100%!important;min-width:0!important}
+  .package-body,.platform-body,.service-card__body,.contact-copy,.contact-options,.policy-content{min-width:0!important}
+  .package-body h3,.platform-body h3,.service-card h3,.contact-copy h2,.policy-content,.portal-support-link{overflow-wrap:anywhere}
+
+  /* Portal empresarial */
+  .portal-hero{padding:42px 0 40px!important}
+  .portal-hero__inner{gap:22px!important}
+  .portal-hero__copy h1{font-size:clamp(2.35rem,10.5vw,3.25rem)!important;line-height:1.02!important}
+  .portal-note{width:100%!important;min-width:0!important}
+  .portal-section{padding:18px 0 72px!important}
+  .portal-shell{border-radius:16px!important;overflow:hidden!important}
+  .portal-shell__head{align-items:stretch!important;flex-direction:column!important;padding:15px!important}
+  .portal-support-link{width:100%!important;justify-content:center!important;text-align:center!important;padding:12px 14px!important}
+  .biofile-frame{width:100%!important;min-height:1080px!important}
+  .portal-support{align-items:stretch!important;flex-direction:column!important;gap:14px!important;padding:18px!important}
+  .portal-support .btn{width:100%!important}
+
+  /* WhatsApp flotante sin tapar la barra fija inferior. */
+  body .whatsapp-float{
+    right:14px!important;
+    bottom:calc(70px + env(safe-area-inset-bottom))!important;
+    width:60px!important;
+    height:60px!important;
+    min-height:60px!important;
+    border-radius:18px!important;
+  }
   body .whatsapp-float svg{width:31px!important;height:31px!important}
-  body .vip-wa-toast{right:83px!important;bottom:calc(78px + env(safe-area-inset-bottom))!important;width:min(230px,calc(100vw - 108px))!important;padding:11px 13px!important;border-radius:16px!important}
-  body .vip-wa-panel{right:12px!important;bottom:calc(140px + env(safe-area-inset-bottom))!important;width:calc(100vw - 24px)!important;max-height:min(520px,calc(100dvh - 170px))!important}
+  body .vip-wa-toast{
+    right:83px!important;
+    bottom:calc(78px + env(safe-area-inset-bottom))!important;
+    width:min(230px,calc(100vw - 108px))!important;
+    padding:11px 13px!important;
+    border-radius:16px!important;
+  }
+  body .vip-wa-panel{
+    right:12px!important;
+    bottom:calc(140px + env(safe-area-inset-bottom))!important;
+    width:calc(100vw - 24px)!important;
+    max-height:min(520px,calc(100dvh - 170px))!important;
+    overflow:auto!important;
+  }
 }
+
+@media (max-width:520px){
+  .hero h1{font-size:clamp(2.2rem,11.3vw,3rem)!important}
+  .hero-photo>img{height:350px!important;object-position:30% center!important}
+  .hero-badge--side{right:10px!important;bottom:76px!important;min-width:124px!important;padding:11px 13px!important}
+  .hero-badge--bottom{left:10px!important;bottom:10px!important;padding:10px 12px!important}
+  .hero-badge--bottom small{max-width:190px!important}
+  .mobile-actions{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+}
+
 @media (max-width:390px){
   body .brand img{width:78px!important;height:50px!important}
+  .hero{padding-top:36px!important}
+  .hero h1{font-size:2.28rem!important}
+  .hero-actions .btn{width:100%!important}
+  .hero-proof{grid-template-columns:1fr!important;gap:10px!important}
+  .hero-proof>div{
+    border-right:0!important;
+    border-bottom:1px solid var(--line)!important;
+    padding:0 0 10px!important;
+  }
+  .hero-proof>div:last-child{border-bottom:0!important}
+  .hero-photo>img{height:330px!important}
+  .hero-badge--top{left:9px!important;right:9px!important;top:9px!important}
+  .hero-badge--side{right:9px!important;bottom:74px!important;min-width:116px!important;max-width:132px!important}
+  .hero-badge--bottom{left:9px!important;right:9px!important;max-width:none!important}
   body .vip-wa-toast{right:78px!important;width:min(205px,calc(100vw - 98px))!important}
+}
+
+/* Móvil horizontal y tablets bajas: no permitir que el widget ocupe la pantalla. */
+@media (max-height:560px) and (orientation:landscape){
+  .vip-wa-toast{display:none!important}
+  .vip-wa-panel{bottom:76px!important;max-height:calc(100dvh - 90px)!important}
+  .whatsapp-float{bottom:12px!important}
+  .mobile-actions{display:none!important}
 }
