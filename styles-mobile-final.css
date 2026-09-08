@@ -206,3 +206,100 @@ img,iframe,video{max-width:100%}
   .whatsapp-float{bottom:12px!important}
   .mobile-actions{display:none!important}
 }
+
+/* =========================================================
+   Corrección de composición del hero en desktop/laptop.
+   Mantiene las tres tarjetas dentro de la fotografía y elimina
+   la sensación de que la columna visual está torcida o corrida.
+========================================================= */
+@media (min-width:1201px){
+  .hero-grid{
+    grid-template-columns:minmax(0,1.03fr) minmax(500px,.97fr)!important;
+    align-items:center!important;
+    gap:clamp(54px,4.7vw,78px)!important;
+  }
+
+  .hero-copy{max-width:690px!important}
+
+  .hero-media{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    min-width:0!important;
+  }
+
+  .hero-photo{
+    width:min(100%,545px)!important;
+    margin:0 0 0 auto!important;
+    transform:none!important;
+  }
+
+  .hero-photo::before{
+    inset:-9px!important;
+    border-radius:31px!important;
+  }
+
+  .hero-photo>img{
+    height:560px!important;
+    object-fit:cover!important;
+    object-position:40% center!important;
+    border-radius:26px!important;
+    transform:none!important;
+  }
+
+  .hero-photo__veil{border-radius:26px!important}
+
+  .hero-badge--top{
+    left:18px!important;
+    right:18px!important;
+    top:18px!important;
+    padding:14px 16px!important;
+    border-radius:16px!important;
+  }
+
+  .hero-badge--side{
+    right:16px!important;
+    top:102px!important;
+    min-width:140px!important;
+    max-width:152px!important;
+    padding:16px 17px!important;
+    border-radius:16px!important;
+  }
+  .hero-badge--side strong{font-size:1.16rem!important}
+  .hero-badge--side small{font-size:.65rem!important;line-height:1.32!important;white-space:normal!important}
+
+  .hero-badge--bottom{
+    left:16px!important;
+    bottom:18px!important;
+    max-width:235px!important;
+    padding:13px 15px!important;
+    border-radius:16px!important;
+  }
+  .hero-badge--bottom strong{font-size:.77rem!important}
+  .hero-badge--bottom small{font-size:.63rem!important;line-height:1.32!important}
+}
+
+/* El globo/panel de WhatsApp nunca debe salir del viewport. */
+@media (min-width:761px){
+  body .whatsapp-float{
+    right:24px!important;
+    bottom:24px!important;
+  }
+
+  body .vip-wa-toast{
+    right:102px!important;
+    bottom:27px!important;
+    width:min(310px,calc(100vw - 150px))!important;
+    max-width:310px!important;
+    padding:14px 16px!important;
+    border-radius:18px!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  body .vip-wa-panel{
+    right:24px!important;
+    bottom:104px!important;
+    width:min(340px,calc(100vw - 40px))!important;
+    max-width:340px!important;
+  }
+}
